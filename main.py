@@ -80,6 +80,8 @@ class Game:
 
         if self.gameStateManager.isMenu():
             self.updateMenu()
+        elif self.gameStateManager.isPaused():
+            self.updatePaused()
         elif self.gameStateManager.isPlaying() or self.gameStateManager.isBoss():
             self.updatePlaying()
         elif self.gameStateManager.isGameOver():
@@ -92,7 +94,28 @@ class Game:
             self.resetGame()
             self.gameStateManager.setState(GameState.PLAYING)
 
+    def updatePaused(self):
+        if self.ui.isResumeClicked(self.mouseControl) and self.clickCooldown == 0:
+            self.clickCooldown = 15
+            if self.boss and self.boss.isAlive:
+                self.gameStateManager.setState(GameState.BOSS)
+            else:
+                self.gameStateManager.setState(GameState.PLAYING)
+
+        if self.ui.isRestartClicked(self.mouseControl) and self.clickCooldown == 0:
+            self.resetGame()
+            self.gameStateManager.setState(GameState.PLAYING)
+
+        if self.ui.isMenuClicked(self.mouseControl) and self.clickCooldown == 0:
+            self.clickCooldown = 15
+            self.gameStateManager.setState(GameState.MENU)
+
     def updatePlaying(self):
+        if self.ui.isPauseClicked(self.mouseControl) and self.clickCooldown == 0:
+            self.clickCooldown = 15
+            self.gameStateManager.setState(GameState.PAUSED)
+            return
+
         self.player.update(self.mouseControl)
         self.player.shoot(self.bullets)
 
@@ -186,17 +209,25 @@ class Game:
         if self.ui.isRestartClicked(self.mouseControl) and self.clickCooldown == 0:
             self.resetGame()
             self.gameStateManager.setState(GameState.PLAYING)
+        if self.ui.isMenuClicked(self.mouseControl) and self.clickCooldown == 0:
+            self.clickCooldown = 15
+            self.gameStateManager.setState(GameState.MENU)
 
     def updateVictory(self):
         if self.ui.isRestartClicked(self.mouseControl) and self.clickCooldown == 0:
             self.resetGame()
             self.gameStateManager.setState(GameState.PLAYING)
+        if self.ui.isMenuClicked(self.mouseControl) and self.clickCooldown == 0:
+            self.clickCooldown = 15
+            self.gameStateManager.setState(GameState.MENU)
 
     def draw(self):
         self.gameScreen.fillBackground((0, 0, 30))
 
         if self.gameStateManager.isMenu():
             self.drawMenu()
+        elif self.gameStateManager.isPaused():
+            self.drawPaused()
         elif self.gameStateManager.isPlaying() or self.gameStateManager.isBoss():
             self.drawPlaying()
         elif self.gameStateManager.isGameOver():
@@ -208,6 +239,31 @@ class Game:
 
     def drawMenu(self):
         self.ui.drawMenu(self.mouseControl)
+
+    def drawPaused(self):
+        self.drawPlayingBackground()
+        self.ui.drawPauseMenu(self.mouseControl)
+
+    def drawPlayingBackground(self):
+        for powerUp in self.powerUps:
+            powerUp.draw(self.gameScreen.getScreen())
+
+        for enemy in self.enemies:
+            enemy.draw(self.gameScreen.getScreen())
+
+        if self.boss and self.boss.isAlive:
+            self.boss.draw(self.gameScreen.getScreen())
+
+        self.player.draw(self.gameScreen.getScreen())
+
+        for bullet in self.bullets:
+            bullet.draw(self.gameScreen.getScreen())
+
+        for bullet in self.enemyBullets:
+            bullet.draw(self.gameScreen.getScreen())
+
+        self.effects.draw(self.gameScreen.getScreen())
+        self.ui.drawGameUI(self.score, self.player, self.boss, isPaused=True)
 
     def drawPlaying(self):
         for powerUp in self.powerUps:
@@ -241,6 +297,15 @@ class Game:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.running = False
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    if (self.gameStateManager.isPlaying() or self.gameStateManager.isBoss()):
+                        self.gameStateManager.setState(GameState.PAUSED)
+                    elif self.gameStateManager.isPaused():
+                        if self.boss and self.boss.isAlive:
+                            self.gameStateManager.setState(GameState.BOSS)
+                        else:
+                            self.gameStateManager.setState(GameState.PLAYING)
 
     def run(self):
         while self.running:
