@@ -14,7 +14,7 @@ class Button:
         self.rect = pygame.Rect(x, y, width, height)
         self.isHovered = False
         self.fontManager = FontManager()
-        self.font = self.fontManager.getFont(28)
+        self.font = self.fontManager.getFont(26)
 
     def update(self, mouseControl):
         mousePos = mouseControl.getPos()
@@ -22,8 +22,8 @@ class Button:
 
     def draw(self, screen):
         color = self.hoverColor if self.isHovered else self.color
-        pygame.draw.rect(screen, color, self.rect, border_radius=8)
-        pygame.draw.rect(screen, (255, 255, 255), self.rect, 3, border_radius=8)
+        pygame.draw.rect(screen, color, self.rect, border_radius=10)
+        pygame.draw.rect(screen, (255, 255, 255), self.rect, 3, border_radius=10)
 
         textSurface = self.font.render(self.text, True, (255, 255, 255))
         textRect = textSurface.get_rect()
@@ -45,25 +45,47 @@ class UI:
         self.smallFont = self.fontManager.getFont(18)
 
         centerX = gameScreen.WIDTH // 2
+        buttonWidth = 200
+        buttonHeight = 60
+
         self.startButton = Button(
-            centerX - 100, 400, 200, 60, "开始游戏",
+            centerX - buttonWidth // 2, 400, buttonWidth, buttonHeight, "开始游戏",
             (0, 150, 0), (0, 200, 0)
-        )
-        self.restartButton = Button(
-            centerX - 100, 450, 200, 60, "重新开始",
-            (150, 100, 0), (200, 150, 0)
         )
         self.pauseButton = Button(
             gameScreen.WIDTH - 90, 10, 80, 35, "暂停",
             (100, 100, 150), (150, 150, 200)
         )
+
         self.resumeButton = Button(
-            centerX - 100, 350, 200, 50, "继续游戏",
+            centerX - buttonWidth // 2, 240, buttonWidth, buttonHeight, "继续游戏",
             (0, 120, 150), (0, 180, 200)
         )
         self.menuButton = Button(
-            centerX - 100, 420, 200, 50, "返回主菜单",
+            centerX - buttonWidth // 2, 325, buttonWidth, buttonHeight, "返回主菜单",
             (150, 50, 50), (200, 80, 80)
+        )
+        self.restartButton = Button(
+            centerX - buttonWidth // 2, 410, buttonWidth, buttonHeight, "重新开始",
+            (150, 100, 0), (200, 150, 0)
+        )
+
+        self.menuButtonVictory = Button(
+            centerX - buttonWidth // 2, 350, buttonWidth, buttonHeight, "返回主菜单",
+            (150, 50, 50), (200, 80, 80)
+        )
+        self.restartButtonVictory = Button(
+            centerX - buttonWidth // 2, 435, buttonWidth, buttonHeight, "重新开始",
+            (150, 100, 0), (200, 150, 0)
+        )
+
+        self.menuButtonGameOver = Button(
+            centerX - buttonWidth // 2, 290, buttonWidth, buttonHeight, "返回主菜单",
+            (150, 50, 50), (200, 80, 80)
+        )
+        self.restartButtonGameOver = Button(
+            centerX - buttonWidth // 2, 375, buttonWidth, buttonHeight, "重新开始",
+            (150, 100, 0), (200, 150, 0)
         )
 
     def drawMenu(self, mouseControl):
@@ -152,17 +174,17 @@ class UI:
         pauseText = self.bigFont.render("游戏暂停", True, (255, 255, 255))
         pauseRect = pauseText.get_rect()
         pauseRect.centerx = self.gameScreen.WIDTH // 2
-        pauseRect.top = 200
+        pauseRect.top = 160
         self.screen.blit(pauseText, pauseRect)
 
         self.resumeButton.update(mouseControl)
         self.resumeButton.draw(self.screen)
 
-        self.restartButton.update(mouseControl)
-        self.restartButton.draw(self.screen)
-
         self.menuButton.update(mouseControl)
         self.menuButton.draw(self.screen)
+
+        self.restartButton.update(mouseControl)
+        self.restartButton.draw(self.screen)
 
     def drawGameOver(self, score, mouseControl):
         overlay = pygame.Surface((self.gameScreen.WIDTH, self.gameScreen.HEIGHT), pygame.SRCALPHA)
@@ -172,20 +194,20 @@ class UI:
         gameOverText = self.bigFont.render("游戏结束", True, (255, 50, 50))
         gameOverRect = gameOverText.get_rect()
         gameOverRect.centerx = self.gameScreen.WIDTH // 2
-        gameOverRect.top = 180
+        gameOverRect.top = 130
         self.screen.blit(gameOverText, gameOverRect)
 
         finalScore = self.font.render(f"最终分数: {score}", True, (255, 255, 255))
         finalScoreRect = finalScore.get_rect()
         finalScoreRect.centerx = self.gameScreen.WIDTH // 2
-        finalScoreRect.top = 280
+        finalScoreRect.top = 210
         self.screen.blit(finalScore, finalScoreRect)
 
-        self.menuButton.update(mouseControl)
-        self.menuButton.draw(self.screen)
+        self.menuButtonGameOver.update(mouseControl)
+        self.menuButtonGameOver.draw(self.screen)
 
-        self.restartButton.update(mouseControl)
-        self.restartButton.draw(self.screen)
+        self.restartButtonGameOver.update(mouseControl)
+        self.restartButtonGameOver.draw(self.screen)
 
     def drawVictory(self, score, mouseControl):
         overlay = pygame.Surface((self.gameScreen.WIDTH, self.gameScreen.HEIGHT), pygame.SRCALPHA)
@@ -195,32 +217,34 @@ class UI:
         victoryText = self.bigFont.render("胜 利!", True, (255, 220, 0))
         victoryRect = victoryText.get_rect()
         victoryRect.centerx = self.gameScreen.WIDTH // 2
-        victoryRect.top = 180
+        victoryRect.top = 130
         self.screen.blit(victoryText, victoryRect)
 
         finalScore = self.font.render(f"最终分数: {score}", True, (255, 255, 255))
         finalScoreRect = finalScore.get_rect()
         finalScoreRect.centerx = self.gameScreen.WIDTH // 2
-        finalScoreRect.top = 280
+        finalScoreRect.top = 210
         self.screen.blit(finalScore, finalScoreRect)
 
         congrats = self.font.render("恭喜你击败了BOSS!", True, (100, 255, 100))
         congratsRect = congrats.get_rect()
         congratsRect.centerx = self.gameScreen.WIDTH // 2
-        congratsRect.top = 350
+        congratsRect.top = 270
         self.screen.blit(congrats, congratsRect)
 
-        self.menuButton.update(mouseControl)
-        self.menuButton.draw(self.screen)
+        self.menuButtonVictory.update(mouseControl)
+        self.menuButtonVictory.draw(self.screen)
 
-        self.restartButton.update(mouseControl)
-        self.restartButton.draw(self.screen)
+        self.restartButtonVictory.update(mouseControl)
+        self.restartButtonVictory.draw(self.screen)
 
     def isStartClicked(self, mouseControl):
         return self.startButton.isClicked(mouseControl)
 
     def isRestartClicked(self, mouseControl):
-        return self.restartButton.isClicked(mouseControl)
+        return (self.restartButton.isClicked(mouseControl) or
+                self.restartButtonVictory.isClicked(mouseControl) or
+                self.restartButtonGameOver.isClicked(mouseControl))
 
     def isPauseClicked(self, mouseControl):
         return self.pauseButton.isClicked(mouseControl)
@@ -229,4 +253,6 @@ class UI:
         return self.resumeButton.isClicked(mouseControl)
 
     def isMenuClicked(self, mouseControl):
-        return self.menuButton.isClicked(mouseControl)
+        return (self.menuButton.isClicked(mouseControl) or
+                self.menuButtonVictory.isClicked(mouseControl) or
+                self.menuButtonGameOver.isClicked(mouseControl))
