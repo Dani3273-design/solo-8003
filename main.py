@@ -263,7 +263,7 @@ class Game:
             bullet.draw(self.gameScreen.getScreen())
 
         self.effects.draw(self.gameScreen.getScreen())
-        self.ui.drawGameUI(self.score, self.player, self.boss, isPaused=True)
+        self.ui.drawGameUI(self.score, self.player, self.boss, isPaused=True, mouseControl=self.mouseControl)
 
     def drawPlaying(self):
         for powerUp in self.powerUps:
@@ -285,7 +285,7 @@ class Game:
 
         self.effects.draw(self.gameScreen.getScreen())
 
-        self.ui.drawGameUI(self.score, self.player, self.boss)
+        self.ui.drawGameUI(self.score, self.player, self.boss, mouseControl=self.mouseControl)
 
     def drawGameOver(self):
         self.ui.drawGameOver(self.score, self.mouseControl)

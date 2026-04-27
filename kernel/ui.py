@@ -88,7 +88,7 @@ class UI:
         self.startButton.update(mouseControl)
         self.startButton.draw(self.screen)
 
-    def drawGameUI(self, score, player, boss=None, isPaused=False):
+    def drawGameUI(self, score, player, boss=None, isPaused=False, mouseControl=None):
         scoreText = self.font.render(f"分数: {score}", True, (255, 255, 255))
         self.screen.blit(scoreText, (10, 10))
 
@@ -117,8 +117,8 @@ class UI:
         pygame.draw.rect(self.screen, (255, 255, 255),
                         (healthX, healthY, healthWidth, healthHeight), 2, border_radius=4)
 
-        if not isPaused:
-            self.pauseButton.update(mouseControl=None)
+        if not isPaused and mouseControl is not None:
+            self.pauseButton.update(mouseControl)
             self.pauseButton.draw(self.screen)
 
         if boss and boss.isAlive and not boss.isEntering:
